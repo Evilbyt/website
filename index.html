@@ -1,1490 +1,597 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A S SUMITH - 3D Portfolio</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #FF3B3B;
-            --background: #1B1B1B;
-            --accent: #EEEEEE;
-            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: var(--background);
-            color: var(--accent);
-            line-height: 1.6;
-            overflow-x: hidden;
-            position: relative;
-        }
-        
-        /* WebGL Canvas */
-        #webgl-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.7;
-            transition: opacity 0.5s ease;
-        }
-        
-        /* View Toggle */
-        .view-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1001;
-            background: rgba(255, 59, 59, 0.2);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 59, 59, 0.5);
-            border-radius: 30px;
-            padding: 8px 16px;
-            color: var(--accent);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
-        }
-        
-        .view-toggle:hover {
-            background: rgba(255, 59, 59, 0.3);
-            transform: translateY(-2px);
-        }
-        
-        /* Content Container */
-        .content-container {
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Header Styles */
-        header {
-            background: rgba(27, 27, 27, 0.85);
-            backdrop-filter: blur(10px);
-            padding: 1.2rem 0;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            transition: var(--transition);
-            border-bottom: 1px solid rgba(255, 59, 59, 0.3);
-        }
-        
-        nav {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 2rem;
-        }
-        
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(to right, var(--primary), #FF6B6B);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .logo i {
-            font-size: 1.4rem;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-        
-        .nav-links a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 500;
-            position: relative;
-            transition: var(--transition);
-            font-size: 1.1rem;
-            padding: 5px 0;
-        }
-        
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(to right, var(--primary), #FF6B6B);
-            transition: var(--transition);
-        }
-        
-        .nav-links a:hover {
-            color: #c5c5c5;
-        }
-        
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-        
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--accent);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        /* Hero Section */
-        .hero {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 0 1rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero-content {
-            max-width: 1000px;
-            z-index: 2;
-            animation: fadeInUp 1s ease-out;
-            display: flex;
-            align-items: center;
-            gap: 4rem;
-            padding-top: 4rem;
-        }
-        
-        .profile-container {
-            position: relative;
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        .profile-photo {
-            width: 280px;
-            height: 280px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 5px solid rgba(255, 59, 59, 0.3);
-            box-shadow: 0 0 50px rgba(255, 59, 59, 0.5);
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, var(--primary), #FF6B6B);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 5rem;
-        }
-        
-        .profile-ring {
-            position: absolute;
-            width: 320px;
-            height: 320px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            border-top-color: var(--primary);
-            border-right-color: #FF6B6B;
-            animation: spin 12s linear infinite;
-        }
-        
-        .profile-ring:nth-child(2) {
-            width: 340px;
-            height: 340px;
-            animation: spinReverse 15s linear infinite;
-        }
-        
-        .hero-text {
-            text-align: left;
-            flex: 1;
-        }
-        
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(to right, var(--primary), #FF6B6B, #FF9B9B);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            line-height: 1.2;
-        }
-        
-        .hero h3 {
-            font-size: 1.8rem;
-            margin-bottom: 2rem;
-            font-weight: 400;
-            color: #c5c5c5;
-        }
-        
-        .hero p {
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-            max-width: 600px;
-            color: #a0a0c0;
-            line-height: 1.8;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 1rem 2.5rem;
-            background: linear-gradient(135deg, var(--primary), #FF6B6B);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-weight: 600;
-            text-transform: uppercase;
-            text-decoration: none;
-            letter-spacing: 1px;
-            transition: var(--transition);
-            box-shadow: 0 5px 15px rgba(255, 59, 59, 0.4);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            font-size: 1rem;
-        }
-        
-        .btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(255, 59, 59, 0.6);
-        }
-        
-        .btn i {
-            margin-left: 8px;
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            margin-left: 15px;
-        }
-        
-        .btn-outline:hover {
-            background: rgba(255, 59, 59, 0.1);
-        }
-        
-        /* Section Styles */
-        section {
-            padding: 8rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .section-header {
-            text-align: center;
-            margin-bottom: 5rem;
-            position: relative;
-        }
-        
-        .section-header h2 {
-            font-size: 2.8rem;
-            margin-bottom: 1rem;
-            position: relative;
-            display: inline-block;
-        }
-        
-        .section-header h2::after {
-            content: '';
-            position: absolute;
-            bottom: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(to right, var(--primary), #FF6B6B);
-            border-radius: 2px;
-        }
-        
-        .section-header p {
-            max-width: 700px;
-            margin: 2rem auto 0;
-            color: #c5c5c5;
-            font-size: 1.1rem;
-        }
-        
-        /* About Section */
-        .about-content {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 3rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            animation: fadeIn 1s ease-out;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .about-content p {
-            margin-bottom: 1.5rem;
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #d0d0e7;
-        }
-        
-        .skills-container {
-            display: flex;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-        
-        .skill-category {
-            flex: 1;
-        }
-        
-        .skill-category h3 {
-            margin-bottom: 1.5rem;
-            color: #FF6B6B;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .skill-category ul {
-            list-style: none;
-        }
-        
-        .skill-category li {
-            padding: 0.8rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .skill-category li i {
-            color: var(--primary);
-        }
-        
-        /* Services Section */
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-        
-        .service-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 2rem;
-            text-align: center;
-            transition: var(--transition);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            animation: fadeInUp 0.8s ease-out;
-        }
-        
-        .service-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-            background: rgba(255, 59, 59, 0.1);
-            border-color: rgba(255, 59, 59, 0.3);
-        }
-        
-        .service-icon {
-            font-size: 3rem;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(to right, var(--primary), #FF6B6B);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .service-card h4 {
-            font-size: 1.4rem;
-            margin-bottom: 1rem;
-        }
-        
-        .service-card p {
-            color: #c5c5c5;
-            font-size: 1rem;
-        }
-        
-        /* Pentesting Tools Section */
-        .tools-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-        
-        .tool-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            transition: var(--transition);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            animation: fadeInUp 0.8s ease-out;
-            min-height: 220px;
-        }
-        
-        .tool-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-            background: rgba(255, 107, 107, 0.1);
-            border-color: rgba(255, 107, 107, 0.3);
-        }
-        
-        .tool-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 1.5rem;
-        }
-        
-        .tool-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary), #FF6B6B);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: white;
-        }
-        
-        .tool-card h3 {
-            font-size: 1.4rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .tool-card p {
-            color: #c5c5c5;
-            font-size: 1rem;
-            line-height: 1.6;
-            flex-grow: 1;
-        }
-        
-        .tool-card .btn {
-            margin-top: 1.5rem;
-            padding: 0.7rem 1.5rem;
-            font-size: 0.9rem;
-            align-self: flex-start;
-        }
-        
-        /* Portfolio Section */
-        .portfolio-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-        
-        .portfolio-item {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            transition: var(--transition);
-            animation: fadeInUp 0.8s ease-out;
-            height: 300px;
-        }
-        
-        .portfolio-item:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-        }
-        
-        .portfolio-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: var(--transition);
-        }
-        
-        .portfolio-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
-            padding: 2rem;
-            transform: translateY(100%);
-            transition: var(--transition);
-        }
-        
-        .portfolio-item:hover .portfolio-overlay {
-            transform: translateY(0);
-        }
-        
-        .portfolio-overlay h3 {
-            font-size: 1.4rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .portfolio-overlay p {
-            color: #c5c5c5;
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-        }
-        
-        /* Badges & Certificates Section */
-        .badges-section {
-            padding: 8rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .badges-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2.5rem;
-            margin-top: 3rem;
-        }
-        
-        .badge-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            overflow: hidden;
-            transition: var(--transition);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 59, 59, 0.2);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .badge-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(255, 59, 59, 0.3);
-            border-color: rgba(255, 59, 59, 0.5);
-        }
-        
-        .badge-img-container {
-            height: 220px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(10, 10, 20, 0.5);
-            padding: 1.5rem;
-            overflow: hidden;
-        }
-        
-        .badge-img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            transition: transform 0.5s ease;
-        }
-        
-        .badge-card:hover .badge-img {
-            transform: scale(1.1);
-        }
-        
-        .badge-content {
-            padding: 1.5rem;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .badge-card h3 {
-            font-size: 1.4rem;
-            margin-bottom: 0.8rem;
-            color: #FF6B6B;
-        }
-        
-        .badge-card p {
-            color: #c5c5c5;
-            margin-bottom: 1.5rem;
-            font-size: 1rem;
-            line-height: 1.6;
-            flex-grow: 1;
-        }
-        
-        .badge-card .btn {
-            align-self: flex-start;
-            margin-top: auto;
-        }
-        
-        /* Contact Section */
-        .contact-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 3rem;
-            margin-top: 3rem;
-        }
-        
-        .contact-info {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .contact-info h3 {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            color: var(--accent);
-            position: relative;
-        }
-        
-        .contact-info h3::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            width: 60px;
-            height: 3px;
-            background: linear-gradient(to right, var(--primary), #FF6B6B);
-        }
-        
-        .contact-details {
-            margin-bottom: 2rem;
-        }
-        
-        .contact-details p {
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.1rem;
-        }
-        
-        .contact-details i {
-            color: #FF6B6B;
-            font-size: 1.2rem;
-            min-width: 25px;
-        }
-        
-        .social-links {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        
-        .social-links a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 45px;
-            height: 45px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            color: var(--accent);
-            font-size: 1.2rem;
-            transition: var(--transition);
-        }
-        
-        .social-links a:hover {
-            background: linear-gradient(135deg, var(--primary), #FF6B6B);
-            transform: translateY(-5px);
-        }
-        
-        /* Footer */
-        footer {
-            background: rgba(27, 27, 27, 0.9);
-            text-align: center;
-            padding: 2rem;
-            border-top: 1px solid rgba(255, 59, 59, 0.3);
-        }
-        
-        footer p {
-            color: #c5c5c5;
-            font-size: 1rem;
-        }
-        
-        /* WebGL Fallback */
-        .webgl-fallback {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1B1B1B, #0A0A0A);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            color: var(--accent);
-            text-align: center;
-            padding: 2rem;
-        }
-        
-        .webgl-fallback.hidden {
-            display: none;
-        }
-        
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes float {
-            0% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-20px);
-            }
-            100% {
-                transform: translateY(0px);
-            }
-        }
-        
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-        
-        @keyframes spinReverse {
-            0% {
-                transform: rotate(360deg);
-            }
-            100% {
-                transform: rotate(0deg);
-            }
-        }
-        
-        .animated {
-            animation: fadeInUp 1s ease-out;
-        }
-        
-        .delay-1 {
-            animation-delay: 0.1s;
-        }
-        
-        .delay-2 {
-            animation-delay: 0.2s;
-        }
-        
-        .delay-3 {
-            animation-delay: 0.3s;
-        }
-        
-        /* Responsive Styles */
-        @media (max-width: 992px) {
-            .hero-content {
-                flex-direction: column;
-                text-align: center;
-                gap: 2rem;
-            }
-            
-            .hero-text {
-                text-align: center;
-            }
-            
-            .profile-container {
-                margin-top: 3rem;
-            }
-            
-            .skills-container {
-                flex-direction: column;
-            }
-            
-            .badges-grid {
-                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: rgba(27, 27, 27, 0.95);
-                flex-direction: column;
-                padding: 2rem;
-                gap: 1.5rem;
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            }
-            
-            .nav-links.active {
-                display: flex;
-            }
-            
-            .mobile-menu-btn {
-                display: block;
-            }
-            
-            .hero h1 {
-                font-size: 2.8rem;
-            }
-            
-            .hero h3 {
-                font-size: 1.4rem;
-            }
-            
-            .section-header h2 {
-                font-size: 2.2rem;
-            }
-            
-            section {
-                padding: 5rem 1.5rem;
-            }
-            
-            .profile-photo {
-                width: 220px;
-                height: 220px;
-            }
-            
-            .profile-ring {
-                width: 260px;
-                height: 260px;
-            }
-            
-            .profile-ring:nth-child(2) {
-                width: 280px;
-                height: 280px;
-            }
-            
-            .btn-outline {
-                margin-left: 0;
-                margin-top: 15px;
-            }
-            
-            .badge-img-container {
-                height: 180px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- WebGL Canvas -->
-    <canvas id="webgl-canvas"></canvas>
+import React, { useState, useEffect } from 'react';
+import { 
+  Terminal, Shield, Code, Database, Server, Wifi, Bug, Search, Key, 
+  Github, Linkedin, Twitter, Mail, MapPin, Phone, ArrowRight, Download,
+  ExternalLink, ChevronRight, X, Menu, Lock, Monitor, Network
+} from 'lucide-react';
+
+// --- DATA: Preserved from A S SUMITH's original HTML ---
+const PORTFOLIO_DATA = {
+  personal: {
+    name: "A S SUMITH",
+    title: "Junior Executive - IT",
+    roles: [
+      "Junior Executive - IT", 
+      "Aspiring Ethical Hacker", 
+      "Network Defender",
+      "RedTeam Hacker Academy Trainee"
+    ],
+    bio: "IT professional with 1.5 years of experience in system monitoring, network security, and vulnerability assessment. Passionate about cybersecurity and ethical hacking. I am a very structured and detail-conscious professional with a proven history of enhancing system performance, improving data processes, and instituting effective troubleshooting protocols that reduce downtime.",
+    email: "www.sumithjohn1947@gmail.com",
+    phone: "+91 6382626246",
+    location: "Chennai, Tamil Nadu, India",
+    socials: {
+      github: "https://github.com/Evilbyt",
+      linkedin: "https://www.linkedin.com/in/evilbyt",
+      instagram: "https://www.instagram.com/evilbyt/"
+    },
+    experienceYears: 1.5
+  },
+  skills: [
+    {
+      category: "Cybersecurity",
+      icon: <Shield className="w-5 h-5" />,
+      items: ["Vulnerability Scanning", "Network Security", "Penetration Testing", "Ethical Hacking", "Security Auditing"]
+    },
+    {
+      category: "Technical Skills",
+      icon: <Monitor className="w-5 h-5" />,
+      items: ["Windows/Linux Administration", "Network Management", "Python Scripting", "Troubleshooting", "System Optimization"]
+    },
+    {
+      category: "Pentesting Tools",
+      icon: <Terminal className="w-5 h-5" />,
+      items: ["Nmap", "Metasploit", "Wireshark", "Burp Suite", "John the Ripper", "Aircrack-ng"]
+    }
+  ],
+  experience: [
+    {
+      role: "Junior Executive - IT",
+      company: "Current Employment",
+      dates: "Recent - Present",
+      description: "Monitoring and maintaining computer systems and networks. Enhancing system performance, optimizing data processes, and instituting effective troubleshooting protocols to reduce downtime.",
+      technologies: ["System Monitoring", "Network Security", "Troubleshooting", "Linux/Windows"]
+    },
+    {
+      role: "Trainee",
+      company: "RedTeam Hacker Academy",
+      dates: "Previous",
+      description: "Underwent rigorous training in penetration testing, network defense, system hardening, and vulnerability assessment.",
+      technologies: ["Ethical Hacking", "Metasploit", "Burp Suite", "Nmap"]
+    }
+  ],
+  badges: [
+    { title: "Introduction to Cybersecurity", desc: "Introductory course into the world of cybersecurity.", issuer: "Cisco Networking Academy" },
+    { title: "Computer Hardware Basics", desc: "Fundamentals of computers, components, and troubleshooting.", issuer: "Cisco Networking Academy" },
+    { title: "Certified Penetration Tester", desc: "Expertise in web application security and network exploitation.", issuer: "RedTeam Hacker Academy" },
+    { title: "Linux Unhatched", desc: "First course in the Linux curriculum by NDG.", issuer: "Cisco Networking Academy" }
+  ],
+  projects: [
+    {
+      id: "port-scanner",
+      title: "Advanced Multi-threaded Port Scanner",
+      shortDesc: "Python tool that scans a target host for open TCP ports and grabs banners.",
+      icon: <Network className="w-12 h-12 text-red-500" />,
+      github: "https://github.com/Evilbyt/port-scanner/",
+      demo: null,
+      tags: ["Python", "Networking", "Security Tooling", "Multi-threading"],
+      outcome: "Enabled rapid host discovery and service identification during internal assessments.",
+      caseStudy: {
+        problem: "Network discovery can be slow and tedious using traditional single-threaded scripts. A custom, lightweight, and fast tool was needed for rapid footprinting during initial assessment phases.",
+        architecture: "The tool utilizes Python's 'socket' library for connection attempts and 'threading' module to concurrently scan multiple ports, drastically reducing overall scan time. It includes basic banner grabbing to identify running services.",
+        lessons: "Learned the intricacies of TCP handshakes, socket timeouts, and the performance implications of thread management in Python.",
+      }
+    },
+    {
+      id: "password-checker",
+      title: "Password Strength Checker (GUI)",
+      shortDesc: "A simple desktop app built with Python's Tkinter. Checks password strength.",
+      icon: <Key className="w-12 h-12 text-red-500" />,
+      github: "https://github.com/Evilbyt/passwd/",
+      demo: null,
+      tags: ["Python", "Tkinter", "Cryptography Concepts"],
+      outcome: "Provided a visual educational tool for users to understand password entropy.",
+      caseStudy: {
+        problem: "Users often struggle to conceptualize what makes a password 'strong'. A local, offline tool was needed to evaluate passwords without risking sending them over the internet.",
+        architecture: "Built using Tkinter for the graphical interface. The underlying logic evaluates length, character variety (uppercase, lowercase, numbers, symbols), and common patterns to generate a strength score.",
+        lessons: "Gained experience in GUI development with Python and implementing standard password complexity algorithms.",
+      }
+    },
+    {
+      id: "phishing-sim",
+      title: "Advanced Phishing Simulator",
+      shortDesc: "A realistic phishing simulation tool for security awareness training.",
+      icon: <Bug className="w-12 h-12 text-red-500" />,
+      github: "https://github.com/Evilbyt/phishing/",
+      demo: null,
+      tags: ["Social Engineering", "Python", "Web Server", "Security Awareness"],
+      outcome: "Helped identify human vulnerabilities in organizational security postures.",
+      caseStudy: {
+        problem: "Organizations need to test employee susceptibility to social engineering attacks in a safe, controlled manner.",
+        architecture: "The simulator spins up a local web server mimicking popular login portals. It captures submitted credentials (in a controlled environment) to log metrics on user susceptibility, without saving sensitive data persistently.",
+        lessons: "Deepened understanding of HTTP protocols, form handling, and the psychology behind successful social engineering campaigns.",
+      }
+    },
+    {
+      id: "wifi-deauth",
+      title: "ESP8266 Wi-Fi Deauthentication Attack",
+      shortDesc: "Demonstrate Wi-Fi deauthentication packets to kick devices off a network in a lab.",
+      icon: <Wifi className="w-12 h-12 text-red-500" />,
+      github: "https://github.com/Evilbyt/ESP8266-writeups/blob/main/Labs/ESP8266_WiFi_Deauth.md",
+      demo: null,
+      tags: ["Hardware Hacking", "ESP8266", "802.11 Protocols", "Wireless Security"],
+      outcome: "Successfully demonstrated wireless vulnerability concepts to improve network defense awareness.",
+      caseStudy: {
+        problem: "802.11 management frames are unencrypted in many legacy networks, allowing attackers to easily disrupt communications.",
+        architecture: "Utilized an ESP8266 microcontroller flashed with custom Deauther firmware. The device crafts and broadcasts spoofed management frames (deauthentication packets) utilizing the target AP's MAC address.",
+        lessons: "Gained hands-on experience with hardware-level network manipulation and a deep understanding of the 802.11 protocol suite vulnerabilities.",
+      }
+    }
+  ]
+};
+
+// --- HOOKS ---
+const useTypewriter = (words, typingSpeed = 100, deletingSpeed = 50, delay = 2000) => {
+  const [text, setText] = useState('');
+  const [wordIndex, setWordIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentWord = words[wordIndex];
     
-    <!-- WebGL Fallback -->
-    <div class="webgl-fallback hidden" id="webgl-fallback">
-        <div>
-            <h2>WebGL Not Supported</h2>
-            <p>Your browser doesn't support WebGL, which is required for the 3D experience.</p>
-            <p>You can still view the content in 2D mode.</p>
-            <button class="btn" id="continue-2d">Continue in 2D</button>
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        setText(currentWord.substring(0, text.length + 1));
+        if (text.length === currentWord.length) {
+          setTimeout(() => setIsDeleting(true), delay);
+        }
+      } else {
+        setText(currentWord.substring(0, text.length - 1));
+        if (text.length === 0) {
+          setIsDeleting(false);
+          setWordIndex((prev) => (prev + 1) % words.length);
+        }
+      }
+    }, isDeleting ? deletingSpeed : typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [text, isDeleting, wordIndex, words, typingSpeed, deletingSpeed, delay]);
+
+  return text;
+};
+
+// --- COMPONENTS ---
+
+const SectionHeading = ({ children, id }) => (
+  <div className="mb-12 relative inline-block group" id={id}>
+    <h2 className="text-3xl md:text-4xl font-bold text-slate-100">{children}</h2>
+    <div className="absolute -bottom-3 left-0 w-1/2 h-1 bg-gradient-to-r from-red-500 to-red-800 transition-all duration-300 group-hover:w-full"></div>
+  </div>
+);
+
+const CaseStudyView = ({ project, onBack }) => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-slate-950 pt-24 pb-16 px-6 text-slate-300">
+      <div className="max-w-4xl mx-auto">
+        <button 
+          onClick={onBack}
+          className="flex items-center gap-2 text-red-500 hover:text-red-400 mb-8 transition-colors"
+        >
+          <ChevronRight className="w-5 h-5 rotate-180" /> Back to Portfolio
+        </button>
+        
+        <div className="mb-10">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-100 mb-4">{project.title}</h1>
+          <p className="text-xl text-slate-400 mb-6">{project.shortDesc}</p>
+          
+          <div className="flex flex-wrap gap-2 mb-8">
+            {project.tags.map((tag, i) => (
+              <span key={i} className="px-3 py-1 bg-red-500/10 text-red-400 border border-red-500/20 rounded-full text-sm">
+                {tag}
+              </span>
+            ))}
+          </div>
+          
+          <div className="flex gap-4">
+            {project.github && (
+              <a href={project.github} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-md transition-colors border border-slate-700">
+                <Github className="w-5 h-5" /> View Source
+              </a>
+            )}
+          </div>
         </div>
+
+        <div className="w-full aspect-video bg-slate-900 rounded-xl border border-slate-800 mb-12 flex items-center justify-center relative overflow-hidden group">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-slate-950 opacity-50"></div>
+            <div className="relative z-10 scale-150 group-hover:scale-110 transition-transform duration-700">
+                {project.icon}
+            </div>
+            <div className="absolute top-4 left-4 flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+        </div>
+
+        <div className="space-y-12">
+          <section>
+            <h3 className="text-2xl font-semibold text-slate-100 mb-4 flex items-center gap-2">
+              <Terminal className="w-6 h-6 text-red-500" /> Problem & Context
+            </h3>
+            <p className="text-lg leading-relaxed">{project.caseStudy.problem}</p>
+          </section>
+
+          <section>
+            <h3 className="text-2xl font-semibold text-slate-100 mb-4 flex items-center gap-2">
+              <Code className="w-6 h-6 text-red-500" /> Architecture & Implementation
+            </h3>
+            <p className="text-lg leading-relaxed">{project.caseStudy.architecture}</p>
+          </section>
+
+          <section className="bg-slate-900/50 p-6 md:p-8 rounded-xl border border-slate-800">
+            <h3 className="text-2xl font-semibold text-slate-100 mb-4 flex items-center gap-2">
+              <Shield className="w-6 h-6 text-red-500" /> Results & Lessons Learned
+            </h3>
+            <div className="mb-6">
+              <h4 className="text-red-400 font-medium mb-2 uppercase tracking-wider text-sm">Business/User Outcome</h4>
+              <p className="text-xl text-slate-200">{project.outcome}</p>
+            </div>
+            <div>
+              <h4 className="text-red-400 font-medium mb-2 uppercase tracking-wider text-sm">Key Takeaways</h4>
+              <p className="text-lg leading-relaxed">{project.caseStudy.lessons}</p>
+            </div>
+          </section>
+        </div>
+      </div>
     </div>
-    
-    <!-- View Toggle -->
-    <div class="view-toggle" id="view-toggle">
-        <i class="fas fa-cube"></i>
-        <span>3D View</span>
-    </div>
-    
-    <!-- Content Container -->
-    <div class="content-container">
-        <!-- Header & Navigation -->
-        <header>
-            <nav>
-                <div class="logo">
-                    <i class="fas fa-user-secret"></i>
-                    <span>Evilbyt</span>
+  );
+};
+
+export default function App() {
+  const [activeProject, setActiveProject] = useState(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const typingText = useTypewriter(PORTFOLIO_DATA.personal.roles);
+
+  const closeMenu = () => setIsMenuOpen(false);
+
+  if (activeProject) {
+    return <CaseStudyView project={activeProject} onBack={() => setActiveProject(null)} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-red-500/30 selection:text-red-200">
+      {/* Navbar */}
+      <nav className="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
+        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+          <a href="#top" className="text-xl font-bold text-slate-100 flex items-center gap-2">
+            <Terminal className="w-6 h-6 text-red-500" />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-400">
+              Evilbyt
+            </span>
+          </a>
+          
+          <div className="hidden md:flex gap-8">
+            {['About', 'Skills', 'Experience', 'Projects', 'Contact'].map(item => (
+              <a key={item} href={`#${item.toLowerCase()}`} className="text-sm font-medium hover:text-red-400 transition-colors">
+                {item}
+              </a>
+            ))}
+          </div>
+
+          <button className="md:hidden text-slate-300" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X /> : <Menu />}
+          </button>
+        </div>
+
+        {/* Mobile menu */}
+        {isMenuOpen && (
+          <div className="md:hidden absolute top-20 left-0 w-full bg-slate-900 border-b border-slate-800 p-4 flex flex-col gap-4 shadow-xl">
+            {['About', 'Skills', 'Experience', 'Projects', 'Contact'].map(item => (
+              <a key={item} href={`#${item.toLowerCase()}`} onClick={closeMenu} className="block p-2 text-slate-300 hover:text-red-400 hover:bg-slate-800 rounded">
+                {item}
+              </a>
+            ))}
+          </div>
+        )}
+      </nav>
+
+      <main>
+        {/* Hero Section */}
+        <section id="top" className="pt-32 pb-20 md:pt-48 md:pb-32 px-6 min-h-[90vh] flex items-center">
+          <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <div className="inline-block px-4 py-1.5 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 text-sm font-mono mb-2">
+                Hello, World.
+              </div>
+              <h1 className="text-5xl md:text-7xl font-bold text-slate-100 tracking-tight">
+                Hi, I'm <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-400">
+                  {PORTFOLIO_DATA.personal.name}
+                </span>
+              </h1>
+              <div className="text-2xl md:text-3xl text-slate-400 h-10 font-mono flex items-center">
+                &gt; <span className="ml-2 text-slate-200">{typingText}</span><span className="w-3 h-8 bg-red-500 ml-1 animate-pulse"></span>
+              </div>
+              <p className="text-lg text-slate-400 max-w-lg leading-relaxed">
+                {PORTFOLIO_DATA.personal.bio.split('.')[0]}. Passionate about breaking to secure and identifying vulnerabilities before the adversaries do.
+              </p>
+              
+              <div className="flex flex-wrap gap-4 pt-4">
+                <a href="#projects" className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-md font-medium transition-all flex items-center gap-2 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)]">
+                  View Projects <ArrowRight className="w-4 h-4" />
+                </a>
+                <a href="#contact" className="px-6 py-3 bg-transparent border border-slate-700 hover:border-slate-500 text-slate-200 rounded-md font-medium transition-all flex items-center gap-2 hover:-translate-y-1">
+                  Contact Me
+                </a>
+              </div>
+
+              <div className="flex gap-4 pt-6">
+                <a href={PORTFOLIO_DATA.personal.socials.github} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors"><Github className="w-6 h-6" /></a>
+                <a href={PORTFOLIO_DATA.personal.socials.linkedin} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors"><Linkedin className="w-6 h-6" /></a>
+              </div>
+            </div>
+
+            {/* Terminal Decoration */}
+            <div className="relative group perspective">
+              <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-red-900 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+              <div className="relative bg-slate-900 rounded-xl border border-slate-800 overflow-hidden shadow-2xl transition-transform duration-500 group-hover:rotate-y-12">
+                <div className="h-10 bg-slate-950 border-b border-slate-800 flex items-center px-4 gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <span className="text-xs text-slate-500 font-mono ml-4">root@evilbyt:~</span>
                 </div>
-                <ul class="nav-links">
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#services">Services</a></li>
-                    <li><a href="#tools">Pentesting Tools</a></li>
-                    <li><a href="#badges">Badges</a></li>
-                    <li><a href="#portfolio">Projects</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-                <button class="mobile-menu-btn">
-                    <i class="fas fa-bars"></i>
+                <div className="p-6 font-mono text-sm">
+                  <div className="text-green-400 mb-2">$ nmap -sS -A target_ip</div>
+                  <div className="text-slate-400 mb-4">Starting Nmap 7.92 ( https://nmap.org ) at 2026-06-11</div>
+                  <div className="text-slate-300">Nmap scan report for target_ip</div>
+                  <div className="text-slate-300">Host is up (0.042s latency).</div>
+                  <div className="text-slate-300">Not shown: 998 closed tcp ports</div>
+                  <div className="text-slate-300 mt-2">PORT     STATE SERVICE VERSION</div>
+                  <div className="text-red-400">22/tcp   open  ssh     OpenSSH 8.2p1</div>
+                  <div className="text-red-400">80/tcp   open  http    Apache httpd 2.4.41</div>
+                  <div className="mt-4 text-green-400 flex items-center gap-2">
+                    $ <span className="w-2 h-4 bg-slate-200 animate-pulse inline-block"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* About & Stats */}
+        <section id="about" className="py-20 px-6 bg-slate-900/50 border-y border-slate-800/50">
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div className="md:col-span-2">
+              <SectionHeading>About Me</SectionHeading>
+              <div className="prose prose-invert prose-lg text-slate-400">
+                <p>{PORTFOLIO_DATA.personal.bio}</p>
+                <p className="mt-4">
+                  I have a background in operating and troubleshooting software and hardware in Windows and Linux environments, with excellent file processing, scanning, and networking capabilities. My approach blends proactive defense with an attacker's mindset.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-6 justify-center">
+              <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 flex items-center gap-4 hover:border-red-500/30 transition-colors">
+                <div className="p-4 bg-red-500/10 text-red-500 rounded-lg">
+                  <Terminal className="w-8 h-8" />
+                </div>
+                <div>
+                  <h4 className="text-3xl font-bold text-slate-100">{PORTFOLIO_DATA.personal.experienceYears}+</h4>
+                  <p className="text-sm text-slate-400 uppercase tracking-wide">Years Experience</p>
+                </div>
+              </div>
+              <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 flex items-center gap-4 hover:border-red-500/30 transition-colors">
+                <div className="p-4 bg-red-500/10 text-red-500 rounded-lg">
+                  <Shield className="w-8 h-8" />
+                </div>
+                <div>
+                  <h4 className="text-3xl font-bold text-slate-100">10+</h4>
+                  <p className="text-sm text-slate-400 uppercase tracking-wide">Tools Mastered</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Skills Section */}
+        <section id="skills" className="py-24 px-6">
+          <div className="max-w-6xl mx-auto">
+            <SectionHeading>Technical Arsenal</SectionHeading>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {PORTFOLIO_DATA.skills.map((skillGroup, idx) => (
+                <div key={idx} className="bg-slate-900/40 p-8 rounded-2xl border border-slate-800 hover:border-red-500/30 transition-all hover:-translate-y-1">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-3 bg-red-500/10 text-red-400 rounded-lg">
+                      {skillGroup.icon}
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-100">{skillGroup.category}</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {skillGroup.items.map((skill, i) => (
+                      <span key={i} className="px-3 py-1.5 bg-slate-950 border border-slate-800 text-slate-300 rounded-md text-sm font-medium">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Experience Timeline */}
+        <section id="experience" className="py-24 px-6 bg-slate-900/50 border-y border-slate-800/50">
+          <div className="max-w-4xl mx-auto">
+            <SectionHeading>Experience & Training</SectionHeading>
+            <div className="relative border-l-2 border-slate-800 ml-3 md:ml-6 space-y-12">
+              {PORTFOLIO_DATA.experience.map((exp, idx) => (
+                <div key={idx} className="relative pl-8 md:pl-12">
+                  <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-red-500 ring-4 ring-slate-950"></div>
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-baseline mb-2 gap-2">
+                    <h3 className="text-2xl font-bold text-slate-100">{exp.role}</h3>
+                    <span className="text-sm font-mono text-red-400 px-3 py-1 bg-red-500/10 rounded-full inline-block w-fit">
+                      {exp.dates}
+                    </span>
+                  </div>
+                  <h4 className="text-lg font-medium text-slate-400 mb-4">{exp.company}</h4>
+                  <p className="text-slate-300 mb-4 leading-relaxed">{exp.description}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {exp.technologies.map((tech, i) => (
+                      <span key={i} className="text-xs text-slate-400 font-mono">#{tech}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Projects Grid */}
+        <section id="projects" className="py-24 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+              <SectionHeading>Featured Projects</SectionHeading>
+              <p className="text-slate-400 max-w-md pb-12">Explorations in security tooling, vulnerability research, and custom script development.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+              {PORTFOLIO_DATA.projects.map((project) => (
+                <div key={project.id} className="group bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden flex flex-col hover:border-red-500/40 transition-all hover:-translate-y-2 hover:shadow-2xl hover:shadow-red-500/10">
+                  
+                  {/* Mock Image Area */}
+                  <div className="h-48 bg-slate-950 border-b border-slate-800 flex items-center justify-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-950 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="relative z-10 transform group-hover:scale-110 transition-transform duration-500">
+                      {project.icon}
+                    </div>
+                  </div>
+                  
+                  <div className="p-6 flex-1 flex flex-col">
+                    <h3 className="text-2xl font-bold text-slate-100 mb-2">{project.title}</h3>
+                    <p className="text-slate-400 mb-6 flex-1">{project.shortDesc}</p>
+                    
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {project.tags.slice(0, 3).map((tag, i) => (
+                        <span key={i} className="text-xs px-2 py-1 bg-slate-800 text-slate-300 rounded">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+                      <div className="flex gap-4">
+                        {project.github && (
+                          <a href={project.github} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors">
+                            <Github className="w-5 h-5" />
+                          </a>
+                        )}
+                      </div>
+                      <button 
+                        onClick={() => setActiveProject(project)}
+                        className="text-sm font-medium text-red-400 hover:text-red-300 flex items-center gap-1 group-hover:gap-2 transition-all"
+                      >
+                        Read Case Study <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Badges / Open Source Alt */}
+        <section className="py-24 px-6 bg-slate-900/50 border-y border-slate-800/50">
+          <div className="max-w-6xl mx-auto">
+            <SectionHeading>Certifications & Badges</SectionHeading>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {PORTFOLIO_DATA.badges.map((badge, idx) => (
+                <div key={idx} className="bg-slate-900 p-6 rounded-xl border border-slate-800 hover:border-red-500/30 transition-all text-center group">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-red-500/10 rounded-full flex items-center justify-center text-red-500 group-hover:scale-110 group-hover:bg-red-500 group-hover:text-white transition-all">
+                    <Lock className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-lg font-bold text-slate-100 mb-2">{badge.title}</h4>
+                  <p className="text-sm text-slate-400 mb-4">{badge.desc}</p>
+                  <span className="text-xs font-mono text-red-400">{badge.issuer}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Contact CTA */}
+        <section id="contact" className="py-24 px-6 relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg h-96 bg-red-500/20 blur-[120px] rounded-full pointer-events-none"></div>
+          <div className="max-w-4xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-8 md:p-12 relative z-10 shadow-2xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-100 mb-4">Interested in working together?</h2>
+                <p className="text-slate-400 mb-8">
+                  I'm currently open to new opportunities in cybersecurity, penetration testing, and IT systems administration. Let's secure your infrastructure.
+                </p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4 text-slate-300">
+                    <div className="p-2 bg-slate-800 rounded-lg"><Mail className="w-5 h-5 text-red-400" /></div>
+                    <a href={`mailto:${PORTFOLIO_DATA.personal.email}`} className="hover:text-red-400 transition-colors">{PORTFOLIO_DATA.personal.email}</a>
+                  </div>
+                  <div className="flex items-center gap-4 text-slate-300">
+                    <div className="p-2 bg-slate-800 rounded-lg"><Phone className="w-5 h-5 text-red-400" /></div>
+                    <span>{PORTFOLIO_DATA.personal.phone}</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-slate-300">
+                    <div className="p-2 bg-slate-800 rounded-lg"><MapPin className="w-5 h-5 text-red-400" /></div>
+                    <span>{PORTFOLIO_DATA.personal.location}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); alert("Message form simulated. In production, hook this up to a service like Formspree or EmailJS."); }}>
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-slate-400 mb-1">Name</label>
+                  <input type="text" id="name" required className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all" />
+                </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-slate-400 mb-1">Email</label>
+                  <input type="email" id="email" required className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all" />
+                </div>
+                <div>
+                  <label htmlFor="message" className="block text-sm font-medium text-slate-400 mb-1">Message</label>
+                  <textarea id="message" rows="4" required className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-100 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all"></textarea>
+                </div>
+                <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-lg transition-colors mt-2 flex justify-center items-center gap-2">
+                  Send Message <ArrowRight className="w-4 h-4" />
                 </button>
-            </nav>
-        </header>
-
-        <!-- Hero Section -->
-        <section class="hero" id="home">
-            <div class="hero-content">
-                <div class="profile-container">
-                    <div class="profile-ring"></div>
-                    <div class="profile-ring"></div>
-                    <div class="profile-photo">
-                        <i class="fas fa-user-secret"></i>
-                    </div>
-                </div>
-                <div class="hero-text">
-                    <h1>A S SUMITH</h1>
-                    <h3>Junior Executive - IT | Aspiring Ethical Hacker | Passionate About Breaking to Secure | Skilled in Network Defense, System Hardening & Vulnerability Assessment | RedTeam Hacker Academy Trainee</h3>
-                    <p>IT professional with 1.5 years of experience in system monitoring, network security, and vulnerability assessment. Passionate about cybersecurity and ethical hacking.</p>
-                    <div class="hero-buttons">
-                        <a href="#portfolio" class="btn">View Projects <i class="fas fa-arrow-right"></i></a>
-                        <a href="#contact" class="btn btn-outline">Contact Me</a>
-                    </div>
-                </div>
+              </form>
             </div>
+          </div>
         </section>
+      </main>
 
-        <!-- About Section -->
-        <section id="about">
-            <div class="section-header">
-                <h2>About Me</h2>
-                <p>Get to know my background, skills, and professional experience</p>
-            </div>
-            <div class="about-content animated">
-                <p>I am a very structured and detail-conscious Computer Operator with over 2 years of experience in monitoring and maintaining computer systems and networks. I possess a proven history of enhancing system performance, enhancing data processes, and instituting effective troubleshooting protocols that reduce downtime and enhance productivity.</p>
-                
-                <p>I have a background of operating and troubleshooting software and hardware in Windows and Linux operating systems with excellent file processing, scanning, and networking capabilities. I am proud to have the capability to troubleshoot technical problems in a timely manner, ensure data integrity, and keep the system secure through maintenance and vulnerability scanning.</p>
-                
-                <div class="skills-container">
-                    <div class="skill-category">
-                        <h3><i class="fas fa-shield-alt"></i> Cybersecurity Skills</h3>
-                        <ul>
-                            <li><i class="fas fa-check"></i> Vulnerability Scanning</li>
-                            <li><i class="fas fa-check"></i> Network Security</li>
-                            <li><i class="fas fa-check"></i> Penetration Testing</li>
-                            <li><i class="fas fa-check"></i> Ethical Hacking</li>
-                            <li><i class="fas fa-check"></i> Security Auditing</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="skill-category">
-                        <h3><i class="fas fa-laptop-code"></i> Technical Skills</h3>
-                        <ul>
-                            <li><i class="fas fa-check"></i> Windows/Linux Administration</li>
-                            <li><i class="fas fa-check"></i> Network Management</li>
-                            <li><i class="fas fa-check"></i> Python Scripting</li>
-                            <li><i class="fas fa-check"></i> Troubleshooting</li>
-                            <li><i class="fas fa-check"></i> System Optimization</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Services Section -->
-        <section id="services">
-            <div class="section-header">
-                <h2>Services</h2>
-                <p>What I can offer for your business and projects</p>
-            </div>
-            <div class="services-grid">
-                <div class="service-card animated delay-1">
-                    <div class="service-icon">
-                        <i class="fas fa-desktop"></i>
-                    </div>
-                    <h4>System Monitoring & Maintenance</h4>
-                    <p>Maintaining best performance and uninterrupted operational availability.</p>
-                </div>
-                
-                <div class="service-card animated delay-2">
-                    <div class="service-icon">
-                        <i class="fas fa-tools"></i>
-                    </div>
-                    <h4>Troubleshooting & Problem-Solving</h4>
-                    <p>Rapidly diagnosing and resolving hardware/software issues.</p>
-                </div>
-                
-                <div class="service-card animated delay-3">
-                    <div class="service-icon">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <h4>Data Entry & File Processing</h4>
-                    <p>High accuracy data processes with optimal speed.</p>
-                </div>
-                
-                <div class="service-card animated">
-                    <div class="service-icon">
-                        <i class="fas fa-network-wired"></i>
-                    </div>
-                    <h4>Networking & Network Management</h4>
-                    <p>Local network administration and vulnerability scanning.</p>
-                </div>
-                
-                <div class="service-card animated delay-1">
-                    <div class="service-icon">
-                        <i class="fab fa-windows"></i>
-                    </div>
-                    <h4>Operating System Skills</h4>
-                    <p>Experienced with Windows and Linux operating systems</p>
-                </div>
-                
-                <div class="service-card animated delay-2">
-                    <div class="service-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h4>Cybersecurity Implementation</h4>
-                    <p>Security protocols and vulnerability management for systems.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Pentesting Tools Section -->
-        <section id="tools">
-            <div class="section-header">
-                <h2>Pentesting Tools</h2>
-                <p>Specialized tools and frameworks I use for security assessments</p>
-            </div>
-            <div class="tools-container">
-                <div class="tool-card animated">
-                    <div class="tool-header">
-                        <div class="tool-icon">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <h3>Nmap</h3>
-                    </div>
-                    <p>Network discovery and security auditing tool. Used for host discovery, port scanning, version detection, and OS fingerprinting.</p>
-                    <a href="https://nmap.org/" class="btn">Learn More</a>
-                </div>
-                
-                <div class="tool-card animated delay-1">
-                    <div class="tool-header">
-                        <div class="tool-icon">
-                            <i class="fas fa-bug"></i>
-                        </div>
-                        <h3>Metasploit</h3>
-                    </div>
-                    <p>Penetration testing framework that enables developing and executing exploit code against a remote target machine.</p>
-                    <a href="https://www.metasploit.com/" class="btn">Learn More</a>
-                </div>
-                
-                <div class="tool-card animated delay-2">
-                    <div class="tool-header">
-                        <div class="tool-icon">
-                            <i class="fas fa-network-wired"></i>
-                        </div>
-                        <h3>Wireshark</h3>
-                    </div>
-                    <p>Network protocol analyzer that lets you capture and interactively browse the traffic running on a computer network.</p>
-                    <a href="https://www.wireshark.org/" class="btn">Learn More</a>
-                </div>
-                
-                <div class="tool-card animated">
-                    <div class="tool-header">
-                        <div class="tool-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <h3>Burp Suite</h3>
-                    </div>
-                    <p>Integrated platform for performing security testing of web applications with various tools working seamlessly together.</p>
-                    <a href="https://portswigger.net/burp/communitydownload" class="btn">Learn More</a>
-                </div>
-                
-                <div class="tool-card animated delay-1">
-                    <div class="tool-header">
-                        <div class="tool-icon">
-                            <i class="fas fa-key"></i>
-                        </div>
-                        <h3>John the Ripper</h3>
-                    </div>
-                    <p>Fast password cracker tool to detect weak Unix passwords and support for hundreds of hash and cipher types.</p>
-                    <a href="https://www.openwall.com/john/" class="btn">Learn More</a>
-                </div>
-                
-                <div class="tool-card animated delay-2">
-                    <div class="tool-header">
-                        <div class="tool-icon">
-                            <i class="fas fa-wifi"></i>
-                        </div>
-                        <h3>Aircrack-ng</h3>
-                    </div>
-                    <p>Complete suite of tools to assess WiFi network security focusing on monitoring, attacking, testing and cracking.</p>
-                    <a href="https://www.aircrack-ng.org/" class="btn">Learn More</a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Badges & Certificates Section -->
-        <section id="badges" class="badges-section">
-            <div class="section-header">
-                <h2>Badges & Certificates</h2>
-                <p>Recognitions and certifications I've earned in my journey</p>
-            </div>
-            <div class="badges-grid">
-                <div class="badge-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="badge-img-container">
-                        <i class="fas fa-shield-alt" style="font-size: 5rem; color: #FF3B3B;"></i>
-                    </div>
-                    <div class="badge-content">
-                        <h3>Introduction to Cybersecurity</h3>
-                        <p>This introductory course takes you inside the world of cybersecurity.</p>
-                        <a href="https://www.credly.com/badges/79fd97c8-497c-46fe-a6af-941fd9cffeb2/public_url" class="btn">View Details</a>
-                    </div>
-                </div>
-                
-                <div class="badge-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="badge-img-container">
-                        <i class="fas fa-laptop" style="font-size: 5rem; color: #FF3B3B;"></i>
-                    </div>
-                    <div class="badge-content">
-                        <h3>Computer Hardware Basics</h3>
-                        <p>Computer Hardware Basics explores the fundamentals of computers and mobile devices, the components that comprise them, how they work, and basic troubleshooting tools and techniques.</p>
-                        <a href="https://www.credly.com/badges/a8a670d6-aa71-41b7-97eb-d0697b83e9d3/public_url" class="btn">View Details</a>
-                    </div>
-                </div>
-                
-                <div class="badge-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="badge-img-container">
-                        <i class="fas fa-user-secret" style="font-size: 5rem; color: #FF3B3B;"></i>
-                    </div>
-                    <div class="badge-content">
-                        <h3>Certified Penetration Tester</h3>
-                        <p>Certified penetration tester with expertise in web application security and network exploitation.</p>
-                        <a href="https://redteamacademy.com/courses/cpt-hq/" class="btn">View Details</a>
-                    </div>
-                </div>
-                
-                <div class="badge-card" data-aos="fade-up" data-aos-delay="400">
-                    <div class="badge-img-container">
-                        <i class="fab fa-linux" style="font-size: 5rem; color: #FF3B3B;"></i>
-                    </div>
-                    <div class="badge-content">
-                        <h3>Linux Unhatched</h3>
-                        <p>Offered by NDG (Network Development Group) as part of the Cisco Networking Academy, Linux Unhatched is the first course in the Linux curriculum.</p>
-                        <a href="https://www.credly.com/badges/7858ff23-0f2c-4953-85b9-2eb1dabe5281/public_url" class="btn">View Details</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Portfolio Section -->
-        <section id="portfolio">
-            <div class="section-header">
-                <h2>Projects</h2>
-                <p>Check out some of my recent work and projects</p>
-            </div>
-            <div class="portfolio-grid">
-                <div class="portfolio-item animated">
-                    <div class="portfolio-img" style="background: linear-gradient(135deg, #FF3B3B, #1B1B1B); display: flex; align-items: center; justify-content: center; color: white;">
-                        <i class="fas fa-network-wired" style="font-size: 4rem;"></i>
-                    </div>
-                    <div class="portfolio-overlay">
-                        <h3>Advanced Multi-threaded Port Scanner</h3>
-                        <p>Python tool that scans a target host for open TCP ports and grabs banners.</p>
-                        <a href="https://github.com/Evilbyt/port-scanner/" target="_blank" class="btn">View Project</a>
-                    </div>
-                </div>
-                
-                <div class="portfolio-item animated delay-1">
-                    <div class="portfolio-img" style="background: linear-gradient(135deg, #FF3B3B, #1B1B1B); display: flex; align-items: center; justify-content: center; color: white;">
-                        <i class="fas fa-key" style="font-size: 4rem;"></i>
-                    </div>
-                    <div class="portfolio-overlay">
-                        <h3>Password Strength Checker (GUI)</h3>
-                        <p>A simple desktop app built with Python's Tkinter. Checks password strength.</p>
-                        <a href="https://github.com/Evilbyt/passwd/" target="_blank" class="btn">View Project</a>
-                    </div>
-                </div>
-                
-                <div class="portfolio-item animated delay-2">
-                    <div class="portfolio-img" style="background: linear-gradient(135deg, #FF3B3B, #1B1B1B); display: flex; align-items: center; justify-content: center; color: white;">
-                        <i class="fas fa-fish" style="font-size: 4rem;"></i>
-                    </div>
-                    <div class="portfolio-overlay">
-                        <h3>Advanced Phishing Simulator</h3>
-                        <p>A realistic phishing simulation tool for security awareness training.</p>
-                        <a href="https://github.com/Evilbyt/phishing/" target="_blank" class="btn">View Project</a>
-                    </div>
-                </div>
-
-                <div class="portfolio-item animated delay-2">
-                    <div class="portfolio-img" style="background: linear-gradient(135deg, #FF3B3B, #1B1B1B); display: flex; align-items: center; justify-content: center; color: white;">
-                        <i class="fas fa-wifi" style="font-size: 4rem;"></i>
-                    </div>
-                    <div class="portfolio-overlay">
-                        <h3>ESP8266 Wi-Fi Deauthentication Attack</h3>
-                        <p>Demonstrate how an ESP8266 running Deauther firmware can send Wi-Fi deauthentication packets to kick devices off a Wi-Fi network in a controlled lab environment.</p>
-                        <a href="https://github.com/Evilbyt/ESP8266-writeups/blob/main/Labs/ESP8266_WiFi_Deauth.md" target="_blank" class="btn">View Project</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Contact Section -->
-        <section id="contact">
-            <div class="section-header">
-                <h2>Contact Me</h2>
-                <p>Get in touch for collaborations or inquiries</p>
-            </div>
-            <div class="contact-container">
-                <div class="contact-info animated">
-                    <h3>Contact Information</h3>
-                    <div class="contact-details">
-                        <p><i class="fas fa-envelope"></i> www.sumithjohn1947@gmail.com</p>
-                        <p><i class="fas fa-phone"></i> +91 6382626246</p>
-                        <p><i class="fas fa-map-marker-alt"></i> Chennai, Tamil Nadu, India</p>
-                    </div>
-                    
-                    <h3 style="margin-top: 2rem;">Follow Me</h3>
-                    <div class="social-links">
-                        <a href="https://github.com/Evilbyt"><i class="fab fa-github"></i></a>
-                        <a href="https://www.linkedin.com/in/evilbyt"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="https://www.instagram.com/evilbyt/"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
-                
-                <div class="contact-info animated delay-1">
-                    <h3>Location</h3>
-                    <div class="map-responsive">
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d248756.13131271105!2d80.04385902558907!3d13.04747331581383!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a5265ea4f7d3361%3A0x6e61a70b6863d433!2sChennai%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1752266109271!5m2!1sen!2sin" width="100%" height="300" style="border:0; border-radius: 10px;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer>
-            <p>&copy; 2025 A S SUMITH. All Rights Reserved. | Designed with ❤️</p>
-        </footer>
+      {/* Footer */}
+      <footer className="bg-slate-950 border-t border-slate-900 py-12 px-6">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2 text-slate-100 font-bold text-xl">
+            <Terminal className="w-6 h-6 text-red-500" />
+            Evilbyt
+          </div>
+          <p className="text-slate-500 text-sm">
+            © {new Date().getFullYear()} A S SUMITH. All Rights Reserved.
+          </p>
+          <div className="flex gap-4">
+            {Object.entries(PORTFOLIO_DATA.personal.socials).map(([platform, url]) => (
+              <a key={platform} href={url} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-slate-300 transition-colors capitalize">
+                {platform}
+              </a>
+            ))}
+          </div>
+        </div>
+      </footer>
     </div>
-
-    <!-- WebGL Implementation -->
-    <script>
-        // WebGL initialization and scene setup
-        (function() {
-            // Check for WebGL support
-            const canvas = document.getElementById('webgl-canvas');
-            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-            const fallback = document.getElementById('webgl-fallback');
-            const continue2d = document.getElementById('continue-2d');
-            const viewToggle = document.getElementById('view-toggle');
-            
-            if (!gl) {
-                console.log('WebGL not supported, showing fallback');
-                fallback.classList.remove('hidden');
-                
-                // Handle continue in 2D
-                continue2d.addEventListener('click', function() {
-                    fallback.classList.add('hidden');
-                    canvas.style.display = 'none';
-                });
-                
-                return;
-            }
-            
-            // WebGL is supported, initialize the 3D scene
-            console.log('WebGL supported, initializing 3D scene');
-            
-            // Set canvas size
-            function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-            
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
-            
-            // Basic WebGL setup
-            gl.clearColor(0.1, 0.1, 0.1, 1.0);
-            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-            gl.enable(gl.DEPTH_TEST);
-            
-            // Create a simple shader program
-            const vertexShaderSource = `
-                attribute vec4 aPosition;
-                uniform float uTime;
-                varying vec2 vUv;
-                
-                void main() {
-                    vUv = aPosition.xy * 0.5 + 0.5;
-                    gl_Position = aPosition + vec4(sin(uTime + aPosition.x * 5.0) * 0.1, cos(uTime + aPosition.y * 5.0) * 0.1, 0.0, 0.0);
-                }
-            `;
-            
-            const fragmentShaderSource = `
-                precision mediump float;
-                uniform float uTime;
-                varying vec2 vUv;
-                
-                void main() {
-                    vec2 uv = vUv;
-                    float r = 0.9 + 0.1 * sin(uTime * 2.0 + uv.x * 10.0);
-                    float g = 0.2 + 0.1 * sin(uTime * 1.5 + uv.y * 10.0);
-                    float b = 0.2 + 0.1 * sin(uTime * 1.2 + (uv.x + uv.y) * 5.0);
-                    gl_FragColor = vec4(r, g, b, 0.7);
-                }
-            `;
-            
-            // Compile shaders
-            function compileShader(source, type) {
-                const shader = gl.createShader(type);
-                gl.shaderSource(shader, source);
-                gl.compileShader(shader);
-                
-                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                    console.error('Shader compilation error:', gl.getShaderInfoLog(shader));
-                    gl.deleteShader(shader);
-                    return null;
-                }
-                
-                return shader;
-            }
-            
-            const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
-            const fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
-            
-            // Create shader program
-            const shaderProgram = gl.createProgram();
-            gl.attachShader(shaderProgram, vertexShader);
-            gl.attachShader(shaderProgram, fragmentShader);
-            gl.linkProgram(shaderProgram);
-            
-            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-                console.error('Shader program linking error:', gl.getProgramInfoLog(shaderProgram));
-            }
-            
-            gl.useProgram(shaderProgram);
-            
-            // Create geometry
-            const vertices = new Float32Array([
-                -1.0, -1.0, 0.0,
-                 1.0, -1.0, 0.0,
-                -1.0,  1.0, 0.0,
-                 1.0,  1.0, 0.0,
-            ]);
-            
-            const indices = new Uint16Array([
-                0, 1, 2,
-                1, 3, 2
-            ]);
-            
-            const vertexBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-            
-            const indexBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
-            
-            const positionAttributeLocation = gl.getAttribLocation(shaderProgram, "aPosition");
-            gl.enableVertexAttribArray(positionAttributeLocation);
-            gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
-            
-            const timeUniformLocation = gl.getUniformLocation(shaderProgram, "uTime");
-            
-            // Animation loop
-            let startTime = Date.now();
-            function animate() {
-                const currentTime = (Date.now() - startTime) / 1000;
-                
-                // Clear the canvas
-                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-                
-                // Update time uniform
-                gl.uniform1f(timeUniformLocation, currentTime);
-                
-                // Draw the geometry
-                gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
-                
-                // Request next frame
-                requestAnimationFrame(animate);
-            }
-            
-            // Start animation
-            animate();
-            
-            // View toggle functionality
-            let is3DView = true;
-            viewToggle.addEventListener('click', function() {
-                is3DView = !is3DView;
-                
-                if (is3DView) {
-                    canvas.style.opacity = '0.7';
-                    viewToggle.innerHTML = '<i class="fas fa-cube"></i><span>3D View</span>';
-                } else {
-                    canvas.style.opacity = '0';
-                    viewToggle.innerHTML = '<i class="fas fa-square"></i><span>2D View</span>';
-                }
-            });
-        })();
-        
-        // Mobile Menu Toggle
-        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
-            document.querySelector('.nav-links').classList.toggle('active');
-        });
-        
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-                
-                // Close mobile menu if open
-                document.querySelector('.nav-links').classList.remove('active');
-            });
-        });
-        
-        // Animation on scroll
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animated');
-                }
-            });
-        }, {
-            threshold: 0.1
-        });
-        
-        document.querySelectorAll('section, .portfolio-item, .service-card, .contact-info, .tool-card, .badge-card').forEach((el) => {
-            observer.observe(el);
-        });
-        
-        // Header scroll effect
-        window.addEventListener('scroll', function() {
-            const header = document.querySelector('header');
-            if (window.scrollY > 100) {
-                header.style.background = 'rgba(27, 27, 27, 0.95)';
-                header.style.padding = '1rem 0';
-                header.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.5)';
-            } else {
-                header.style.background = 'rgba(27, 27, 27, 0.85)';
-                header.style.padding = '1.2rem 0';
-                header.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.3)';
-            }
-        });
-        
-        // Floating animation for profile photo
-        const profile = document.querySelector('.profile-container');
-        setInterval(() => {
-            profile.style.animation = 'none';
-            setTimeout(() => {
-                profile.style.animation = 'float 6s ease-in-out infinite';
-            }, 10);
-        }, 6000);
-    </script>
-</body>
-</html>
-
+  );
+}
